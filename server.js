@@ -1,12 +1,29 @@
 const express = require('express')
 const http = require('http')
 const WebSocket = require('ws')
+const os = require('os')
 
 const app = express()
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
 
 const PORT = 8000
+
+
+// Get local network IP dynamically
+const getLocalIP = () => {
+  const interfaces = os.networkInterfaces()
+  for (const iface of Object.values(interfaces)) {
+    for (const config of iface) {
+      if (config.family === 'IPv4' && !config.internal) {
+        return config.address
+      }
+    }
+  }
+  return '192.168.10.132' // Fallback if no IP found
+}
+
+const host = getLocalIP()
 
 let clients = new Map() // Store clients with unique IDs
 
@@ -72,5 +89,5 @@ app.get('/', (req, res) => {
 })
 
 server.listen(PORT, () => {
-  console.log(`Server is listening on http://192.168.10.132:${PORT}`)
+  console.log(`Server is listening on http://${host}:${PORT}`)
 })
